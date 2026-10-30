@@ -1,28 +1,79 @@
 @import "tailwindcss";
 
-:root{
+/* The .dark class (set by ThemeContext) switches the theme, not the OS setting. */
+@custom-variant dark (&:where(.dark, .dark *));
 
-  --primary:#7C3AED;
-  --secondary:#A855F7;
-  --background:#F8F9FD;
-  --surface:#FFFFFF;
-  --border:#E5E7EB;
-  --text:#111827;
-  --subtext:#6B7280;
+/* Palette: black, orange, off-white. Orange is the only colour; black text sits on it for contrast. */
+:root {
+  --canvas: #F6F5F1;      /* off-white page */
+  --surface: #FCFCFA;     /* panels, one step lighter */
+  --line: #D9D7CF;
+  --ink: #000000;
+  --muted: #5A5852;
+  --accent: #FF5A00;      /* fills: buttons, selected chips */
+  --accent-strong: #E04E00;
+  --accent-tint: #FFE6D6;
+  --accent-text: #B33A00; /* orange used as text on off-white (AA contrast) */
+  --rail: #000000;
+  --rail-text: #F6F5F1;
 }
 
-.dark{
-
-  --background:#0F172A;
-  --surface:#1E293B;
-  --border:#334155;
-  --text:#F8FAFC;
-  --subtext:#94A3B8;
+.dark {
+  --canvas: #000000;
+  --surface: #131313;
+  --line: #2C2C2C;
+  --ink: #F6F5F1;
+  --muted: #A8A59D;
+  --accent-tint: #3A1B08;
+  --accent-text: #FF8A3D;
+  --rail: #000000;
 }
 
-body{
-  margin:0;
-  font-family:"Inter",sans-serif;
-  background:var(--background);
-  color:var(--text);
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-tint: var(--accent-tint);
+  --color-accent-text: var(--accent-text);
+  --color-rail: var(--rail);
+  --color-rail-text: var(--rail-text);
+  --font-display: "Bricolage Grotesque Variable", "Inter", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html { color-scheme: light; }
+html.dark { color-scheme: dark; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background: var(--canvas);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+@layer components {
+  .panel { @apply rounded-lg border border-line bg-surface; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-primary { @apply bg-accent text-black hover:bg-accent-strong; }
+  .btn-dark { @apply bg-ink text-canvas hover:opacity-85; }
+  .btn-outline { @apply border border-line text-ink hover:border-ink; }
+  .btn-danger { @apply border border-red-600/50 text-red-600 hover:bg-red-600 hover:text-white dark:text-red-400 dark:hover:text-white; }
+  .input { @apply w-full rounded-md border border-line bg-canvas px-3.5 py-2.5 text-ink outline-none placeholder:text-muted focus:border-accent focus:ring-2 focus:ring-accent/30 disabled:opacity-60; }
+  .label { @apply mb-1.5 block text-sm font-medium; }
+  .chip { @apply inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm transition-colors hover:border-ink; }
+  .chip[aria-pressed="true"] { @apply border-accent bg-accent font-semibold text-black hover:border-accent; }
+  .tag { @apply inline-flex items-center rounded-full bg-accent-tint px-3 py-1 text-sm font-medium text-ink; }
 }

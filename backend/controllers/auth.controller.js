@@ -1,133 +1,42 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { validationResult } from "express-validator";
 import User from "../models/User.js";
+import { serializeUser } from "../utils/serializeUser.js";
+import httpError from "../utils/httpError.js";
 
-/*
-    Generate JWT Token
-*/
-const generateToken = (id) => {
-    return jwt.sign(
-        { id },
-        process.env.JWT_SECRET,
-        {
-            expiresIn: "7d",
-        }
-    );
-};
+const signToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-/*
-    Register User
-*/
-export const register = async (req, res) => {
+export const register = async (req, res, next) => {
     try {
-
-        const errors = validationResult(req);
-
-        if (!errors.isEmpty()) {
-            return res.status(400).json({
-                success: false,
-                errors: errors.array(),
-            });
-        }
-
         const { name, email, password } = req.body;
+        if (await User.findOne({ email })) throw httpError(409, "Email already registered");
 
-        const existingUser = await User.findOne({ email });
-
-        if (existingUser) {
-            return res.status(409).json({
-                success: false,
-                message: "Email already registered",
-            });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const user = await User.create({
-            name,
-            email,
-            password: hashedPassword,
-        });
-
-        const token = generateToken(user._id);
-
-        res.status(201).json({
+        const user = await User.create({ name, email, password: await bcrypt.hash(password, 10) });
+        return res.status(201).json({
             success: true,
-            message: "Registration Successful",
-            token,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-            },
+            message: "Registration successful",
+            token: signToken(user._id),
+            user: serializeUser(user),
         });
-
     } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: error.message,
-        });
-
+        return next(error);
     }
 };
 
-/*
-    Login User
-*/
-export const login = async (req, res) => {
-
+export const login = async (req, res, next) => {
     try {
-
-        const errors = validationResult(req);
-
-        if (!errors.isEmpty()) {
-            return res.status(400).json({
-                success: false,
-                errors: errors.array(),
-            });
-        }
-
         const { email, password } = req.body;
+        const user = await User.findOne({ email }).select("+password");
+        // Same message for "no such user" and "wrong password" so accounts cannot be probed.
+        if (!user || !(await bcrypt.compare(password, user.password))) throw httpError(401, "Invalid email or password");
 
-        const user = await User.findOne({ email });
-
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "User not found",
-            });
-        }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-
-        if (!isMatch) {
-            return res.status(401).json({
-                success: false,
-                message: "Invalid Credentials",
-            });
-        }
-
-        const token = generateToken(user._id);
-
-        res.status(200).json({
+        return res.json({
             success: true,
-            message: "Login Successful",
-            token,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-            },
+            message: "Login successful",
+            token: signToken(user._id),
+            user: serializeUser(user),
         });
-
     } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: error.message,
-        });
-
+        return next(error);
     }
 };

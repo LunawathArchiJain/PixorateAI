@@ -1,94 +1,44 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { FiGrid, FiImage, FiClock, FiUser, FiSettings, FiLogOut } from "react-icons/fi";
+import { NavLink } from "react-router-dom";
+import { FiLogOut } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
-
-const menuItems = [
-    {
-        name: "Dashboard",
-        path: "/dashboard",
-        icon: <FiGrid />
-    },
-    {
-        name: "Generate",
-        path: "/dashboard",
-        icon: <FiImage />
-    },
-    {
-        name: "History",
-        path: "/history",
-        icon: <FiClock />
-    },
-    {
-        name: "Profile",
-        path: "/profile",
-        icon: <FiUser />
-    },
-    {
-        name: "Settings",
-        path: "/settings",
-        icon: <FiSettings />
-    }
-];
+import Logo from "../common/Logo";
+import Avatar from "../common/Avatar";
+import { NAV_ITEMS } from "./nav";
 
 export default function Sidebar() {
-
-    const navigate = useNavigate();
-    const { logout } = useAuth();
+    const { user, logout } = useAuth();
 
     return (
-            <aside
-                className="
-                    w-64
-                    min-h-screen
-                    bg-white
-                    border-r
-                    border-gray-200
-                    flex
-                    flex-col
-                    justify-between
-                    sticky
-                    top-0
-                    self-start
-                "
-            >            
+        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col justify-between border-r border-line bg-rail px-4 py-6 text-rail-text lg:flex">
             <div>
-                <div className="p-6">
-                    <h1 className="text-2xl font-bold text-violet-600">
-                        PIXORATE AI
-                    </h1>
-                </div>
-                <nav className="px-4 space-y-2">
-                    {menuItems.map((item) => (
-                        <NavLink
-                            key={item.name}
-                            to={item.path}
+                <Logo to="/dashboard" className="px-3 text-rail-text" />
+                <nav className="mt-10 space-y-1" aria-label="Main">
+                    {NAV_ITEMS.map((item) => (
+                        <NavLink key={item.to} to={item.to}
                             className={({ isActive }) =>
-                                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                                    isActive ? "bg-violet-100 text-violet-700 font-semibold" : "hover:bg-gray-100 text-gray-700"
-                                }`
-                            }
-                        >
-                            {item.icon}
-                            {item.name}
+                                `flex items-center gap-3 rounded-md border-l-[3px] px-3 py-2.5 text-[15px] transition-colors ${
+                                    isActive ? "border-accent bg-white/10 font-semibold text-rail-text" : "border-transparent text-rail-text/65 hover:bg-white/5 hover:text-rail-text"
+                                }`}>
+                            <span className="text-lg" aria-hidden="true">{item.icon}</span>
+                            {item.label}
                         </NavLink>
                     ))}
                 </nav>
             </div>
-            <div className="p-4">
-                <button
-                    onClick={() => {
-                        logout();
-                        navigate("/login");
-                    }}
-                    className="flex items-center gap-3 w-full px-4 py-3 rounded-xl hover:bg-red-50 text-red-500"
-                >
-                    <FiLogOut />
-                    Logout
+
+            <div className="border-t border-white/15 pt-4">
+                <NavLink to="/profile" className="flex items-center gap-3 rounded-md px-3 py-2 hover:bg-white/5">
+                    <Avatar user={user} size={36} />
+                    <span className="min-w-0">
+                        <span className="block truncate text-sm font-semibold">{user?.name}</span>
+                        <span className="block truncate text-xs text-rail-text/60">{user?.email}</span>
+                    </span>
+                </NavLink>
+                <button type="button" onClick={() => logout()}
+                    className="mt-1 flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm text-rail-text/65 hover:bg-white/5 hover:text-rail-text">
+                    <FiLogOut aria-hidden="true" /> Log out
                 </button>
             </div>
-
         </aside>
-
     );
-
 }

@@ -7,42 +7,24 @@ import Dashboard from "./pages/Dashboard";
 import History from "./pages/History";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
-
+import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 
-function App() {
-
+export default function App() {
     return (
         <Routes>
-            {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
-            {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
-                <Route
-                    path="/dashboard"
-                    element={<Dashboard />}
-                />
-
-                <Route
-                    path="/history"
-                    element={<History />}
-                />
-
-                <Route
-                    path="/profile"
-                    element={<Profile />}
-                />
-
-                <Route
-                    path="/settings"
-                    element={<Settings />}
-                />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/history" element={<History />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/settings" element={<Settings />} />
             </Route>
+
+            <Route path="*" element={<NotFound />} />
         </Routes>
     );
 }
-
-export default App;

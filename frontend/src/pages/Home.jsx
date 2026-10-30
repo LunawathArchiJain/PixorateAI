@@ -2,17 +2,15 @@ import Navbar from "../components/home/Navbar";
 import Hero from "../components/home/Hero";
 import Features from "../components/home/Features";
 import Footer from "../components/home/Footer";
-import BackgroundEffects from "../components/home/BackgroundEffects";
 
 export default function Home() {
     return (
-        <div className="relative min-h-screen overflow-hidden bg-[#f8f6ff]">
-            <BackgroundEffects />
+        <div className="min-h-screen bg-canvas text-ink">
             <Navbar />
-            <main className="relative z-10">
+            <main>
                 <Hero />
                 <Features />
-            </main>     
+            </main>
             <Footer />
         </div>
     );

@@ -1,58 +1,14 @@
 import multer from "multer";
-import path from "path";
-import fs from "fs";
+import httpError from "../utils/httpError.js";
 
-// Create uploads folder if it doesn't exist
-const uploadDir = "uploads";
+const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
 
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-}
-
-// Storage configuration
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
-    },
-
-    filename: (req, file, cb) => {
-        const uniqueName =
-            Date.now() + "-" + Math.round(Math.random() * 1e9);
-
-        cb(
-            null,
-            uniqueName + path.extname(file.originalname)
-        );
-    },
+/** Keeps the image in memory: it is sent to Gemini and never written to disk. */
+export default multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024, files: 1, fieldSize: 200 * 1024 },
+    fileFilter: (_req, file, cb) =>
+        ALLOWED.has(file.mimetype)
+            ? cb(null, true)
+            : cb(httpError(400, "Only JPG, PNG, and WEBP images are allowed.")),
 });
-
-// Allowed image types
-const fileFilter = (req, file, cb) => {
-
-    const allowedTypes = [
-        "image/jpeg",
-        "image/jpg",
-        "image/png",
-        "image/webp",
-    ];
-
-    if (allowedTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(new Error("Only JPG, JPEG, PNG and WEBP images are allowed."));
-    }
-};
-
-const upload = multer({
-
-    storage,
-
-    fileFilter,
-
-    limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB
-    },
-
-});
-
-export default upload;

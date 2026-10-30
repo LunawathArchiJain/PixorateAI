@@ -1,50 +1,30 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import httpError from "../utils/httpError.js";
 
-const authMiddleware = async (req, res, next) => {
-
+export default async function authMiddleware(req, _res, next) {
     try {
+        const header = req.headers.authorization || "";
+        if (!header.startsWith("Bearer ")) throw httpError(401, "Please log in to continue.");
 
-        const authHeader = req.headers.authorization;
-
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-
-            return res.status(401).json({
-                success: false,
-                message: "Access Denied",
-            });
-
+        let decoded;
+        try {
+            decoded = jwt.verify(header.slice(7), process.env.JWT_SECRET);
+        } catch (error) {
+            throw httpError(
+                401,
+                error.name === "TokenExpiredError"
+                    ? "Your session has expired. Please log in again."
+                    : "Invalid session. Please log in again."
+            );
         }
 
-        const token = authHeader.split(" ")[1];
+        const user = await User.findById(decoded.id).select("-password");
+        if (!user) throw httpError(401, "Account not found. Please log in again.");
 
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_SECRET
-        );
-
-        req.user = await User.findById(decoded.id).select("-password");
-
-        if (!req.user) {
-
-            return res.status(401).json({
-                success: false,
-                message: "User not found",
-            });
-
-        }
-
-        next();
-
+        req.user = user;
+        return next();
     } catch (error) {
-
-        return res.status(401).json({
-            success: false,
-            message: "Invalid Token",
-        });
-
+        return next(error);
     }
-
-};
-
-export default authMiddleware;
+}

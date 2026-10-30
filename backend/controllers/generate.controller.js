@@ -1,69 +1,43 @@
-import fs from "fs";
-import GeneratedContent from "../models/generatedContent.js";
-
-import { buildPrompt } from "../services/prompt.service.js";
+import GeneratedContent from "../models/GeneratedContent.js";
+import { buildPrompt, normalizeGenerationOptions } from "../services/prompt.service.js";
 import { generateWithGemini } from "../services/gemini.service.js";
+import { normalizeResult } from "../services/result.service.js";
+import { cleanThumbnail, detectImageType } from "../utils/image.js";
+import httpError from "../utils/httpError.js";
 
-export const generate = async (req, res) => {
+export const generate = async (req, res, next) => {
     try {
-        // Check image
-        if (!req.file) {
-            return res.status(400).json({
-                success: false,
-                message: "Please upload an image."
+        if (!req.file) throw httpError(400, "Please upload an image.");
+        const options = normalizeGenerationOptions(req.body);
+
+        const mimeType = detectImageType(req.file.buffer);
+        if (!mimeType) throw httpError(400, "The file is not a valid JPG, PNG, or WEBP image.");
+
+        const raw = await generateWithGemini({ buffer: req.file.buffer, mimeType, prompt: buildPrompt(options) });
+        const generatedContent = normalizeResult(options.contentType, raw);
+
+        // A failed save should not throw away content the user already waited for.
+        let saved = null;
+        try {
+            saved = await GeneratedContent.create({
+                user: req.user._id,
+                imageName: String(req.file.originalname || "").slice(0, 120),
+                thumbnail: cleanThumbnail(req.body.thumbnail) || "",
+                ...options,
+                generatedContent,
             });
+        } catch (saveError) {
+            console.error("Could not save generation history:", saveError.message);
         }
 
-        const {
-            platform = "instagram",
-            tone = "professional",
-            language = "English",
-            contentType = "caption"
-        } = req.body;
-
-        // Build Prompt
-        const prompt = buildPrompt({
-            platform,
-            tone,
-            language,
-            contentType
-        });
-
-        // Generate with Gemini
-        const generatedContent = await generateWithGemini(
-            req.file.path,
-            prompt
-        );
-
-        // Save generation
-        const savedGeneration = await GeneratedContent.create({
-            user: req.user._id,
-            imagePath: req.file.path,
-            platform,
-            tone,
-            language,
-            contentType,
-            generatedContent
-        });
-
-        // Delete uploaded image after processing (optional)
-        if (fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
-        }
         return res.status(200).json({
             success: true,
-            generationId: savedGeneration._id,
-            generatedContent
+            generationId: saved?._id ?? null,
+            contentType: options.contentType,
+            generatedContent,
+            createdAt: saved?.createdAt ?? new Date().toISOString(),
         });
     } catch (error) {
-        console.error("Generate Controller Error:", error);
-        // Delete image if an error occurs
-        if (req.file?.path && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
-        }
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Content generation failed."
-        });
+        return next(error);
     }
 };

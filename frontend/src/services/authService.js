@@ -1,18 +1,4 @@
 import api from "./api";
 
-export const register = async (userData) => {
-
-    const { data } = await api.post(
-        "/auth/register",
-        userData
-    );
-    return data;
-};
-
-export const login = async (userData) => {
-    const { data } = await api.post(
-        "/auth/login",
-        userData
-    );
-    return data;
-};
+export const register = async (payload) => (await api.post("/auth/register", payload)).data;
+export const login = async (payload) => (await api.post("/auth/login", payload)).data;

@@ -1,314 +1,54 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FiEye, FiEyeOff, FiUser, FiMail, FiLock } from "react-icons/fi";
 import toast from "react-hot-toast";
-
-import { register } from "../../services/authService";
+import { register as registerRequest } from "../../services/authService";
 import { useAuth } from "../../context/AuthContext";
+import { errorMessage } from "../../utils/format";
+import PasswordInput from "./PasswordInput";
 
 export default function RegisterForm() {
-
-    const navigate = useNavigate();
-
     const { login } = useAuth();
+    const navigate = useNavigate();
+    const [form, setForm] = useState({ name: "", email: "", password: "" });
+    const [busy, setBusy] = useState(false);
 
-    const [loading, setLoading] = useState(false);
-
-    const [showPassword, setShowPassword] = useState(false);
-
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        password: "",
-        confirmPassword: ""
-    });
-
-    const handleChange = (e) => {
-
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-
-    };
-
-    const handleSubmit = async (e) => {
-
-        e.preventDefault();
-
-        if (
-            !formData.name ||
-            !formData.email ||
-            !formData.password ||
-            !formData.confirmPassword
-        ) {
-
-            return toast.error("Please fill all fields.");
-
-        }
-
-        if (formData.password !== formData.confirmPassword) {
-
-            return toast.error("Passwords do not match.");
-
-        }
-
-        if (formData.password.length < 6) {
-
-            return toast.error("Password should be at least 6 characters.");
-
-        }
-
+    const submit = async (event) => {
+        event.preventDefault();
+        if (form.password.length < 6) return toast.error("Password must be at least 6 characters.");
+        setBusy(true);
         try {
-
-            setLoading(true);
-
-            const response = await register({
-
-                name: formData.name,
-                email: formData.email,
-                password: formData.password
-
-            });
-
-            login(
-                response.token,
-                response.user
-            );
-
-            toast.success("Registration Successful!");
-
-            navigate("/dashboard");
-
+            const data = await registerRequest({ name: form.name.trim(), email: form.email.trim(), password: form.password });
+            login(data.token, data.user);
+            toast.success("Account created");
+            navigate("/dashboard", { replace: true });
         } catch (error) {
-
-            toast.error(
-                error.response?.data?.message ||
-                "Registration Failed"
-            );
-
+            toast.error(errorMessage(error, "Registration failed. Please try again."));
         } finally {
-
-            setLoading(false);
-
+            setBusy(false);
         }
-
     };
 
     return (
-
-        <div className="flex items-center justify-center px-8 py-16">
-
-            <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-10">
-
-                <h2 className="text-3xl font-bold">
-
-                    Create Account
-
-                </h2>
-
-                <p className="text-gray-500 mt-2">
-
-                    Join Pixora AI today.
-
-                </p>
-
-                <form
-                    onSubmit={handleSubmit}
-                    className="mt-8 space-y-5"
-                >
-
-                    {/* Name */}
-
-                    <div className="relative">
-
-                        <FiUser className="absolute left-4 top-4 text-gray-400"/>
-
-                        <input
-                            type="text"
-                            name="name"
-                            placeholder="Full Name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            className="
-                                w-full
-                                rounded-xl
-                                border
-                                pl-12
-                                pr-4
-                                py-3
-                                outline-none
-                                focus:border-violet-600
-                            "
-                        />
-
-                    </div>
-
-                    {/* Email */}
-
-                    <div className="relative">
-
-                        <FiMail className="absolute left-4 top-4 text-gray-400"/>
-
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder="Email Address"
-                            value={formData.email}
-                            onChange={handleChange}
-                            className="
-                                w-full
-                                rounded-xl
-                                border
-                                pl-12
-                                pr-4
-                                py-3
-                                outline-none
-                                focus:border-violet-600
-                            "
-                        />
-
-                    </div>
-
-                    {/* Password */}
-
-                    <div className="relative">
-
-                        <FiLock className="absolute left-4 top-4 text-gray-400"/>
-
-                        <input
-                            type={showPassword ? "text" : "password"}
-                            name="password"
-                            placeholder="Password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            className="
-                                w-full
-                                rounded-xl
-                                border
-                                pl-12
-                                pr-12
-                                py-3
-                                outline-none
-                                focus:border-violet-600
-                            "
-                        />
-
-                        <button
-                            type="button"
-                            onClick={() =>
-                                setShowPassword(!showPassword)
-                            }
-                            className="absolute right-4 top-4"
-                        >
-                            {
-                                showPassword
-                                    ? <FiEyeOff/>
-                                    : <FiEye/>
-                            }
-                        </button>
-
-                    </div>
-
-                    {/* Confirm Password */}
-
-                    <div className="relative">
-
-                        <FiLock className="absolute left-4 top-4 text-gray-400"/>
-
-                        <input
-                            type={
-                                showConfirmPassword
-                                    ? "text"
-                                    : "password"
-                            }
-                            name="confirmPassword"
-                            placeholder="Confirm Password"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            className="
-                                w-full
-                                rounded-xl
-                                border
-                                pl-12
-                                pr-12
-                                py-3
-                                outline-none
-                                focus:border-violet-600
-                            "
-                        />
-
-                        <button
-                            type="button"
-                            onClick={() =>
-                                setShowConfirmPassword(
-                                    !showConfirmPassword
-                                )
-                            }
-                            className="absolute right-4 top-4"
-                        >
-                            {
-                                showConfirmPassword
-                                    ? <FiEyeOff/>
-                                    : <FiEye/>
-                            }
-                        </button>
-
-                    </div>
-
-                    {/* Button */}
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="
-                            w-full
-                            py-3
-                            rounded-xl
-                            text-white
-                            font-semibold
-                            bg-gradient-to-r
-                            from-violet-600
-                            to-pink-500
-                            hover:scale-[1.02]
-                            transition
-                            disabled:opacity-60
-                        "
-                    >
-
-                        {
-                            loading
-                                ? "Creating Account..."
-                                : "Create Account"
-                        }
-
-                    </button>
-
-                </form>
-
-                <p className="text-center mt-8 text-gray-500">
-
-                    Already have an account?
-
-                    <Link
-                        to="/login"
-                        className="
-                            ml-2
-                            font-semibold
-                            text-violet-600
-                        "
-                    >
-                        Login
-                    </Link>
-
-                </p>
-
+        <form onSubmit={submit} className="w-full max-w-md space-y-5">
+            <div>
+                <h1 className="text-4xl font-bold">Create your account</h1>
+                <p className="mt-2 text-muted">Free to start. Your first result is a minute away.</p>
             </div>
-
-        </div>
-
+            <div>
+                <label htmlFor="reg-name" className="label">Full name</label>
+                <input id="reg-name" className="input" autoComplete="name" maxLength={60} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+            </div>
+            <div>
+                <label htmlFor="reg-email" className="label">Email</label>
+                <input id="reg-email" type="email" className="input" autoComplete="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+            </div>
+            <div>
+                <label htmlFor="reg-password" className="label">Password</label>
+                <PasswordInput id="reg-password" autoComplete="new-password" minLength={6} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+                <p className="mt-1.5 text-sm text-muted">At least 6 characters.</p>
+            </div>
+            <button type="submit" className="btn btn-primary w-full py-3.5 text-base" disabled={busy}>{busy ? "Creating account…" : "Create account"}</button>
+            <p className="text-muted">Already registered? <Link to="/login" className="font-semibold text-accent-text underline underline-offset-4">Log in</Link></p>
+        </form>
     );
-
 }

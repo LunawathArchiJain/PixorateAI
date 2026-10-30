@@ -1,287 +1,35 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { TypeAnimation } from "react-type-animation";
-import {
-    FiArrowRight,
-    FiImage,
-    FiHash,
-    FiFileText,
-    FiZap
-} from "react-icons/fi";
+import { useAuth } from "../../context/AuthContext";
+
+const SAMPLE_TAGS = ["#morningcoffee", "#slowmornings", "#cafevibes", "#latteart", "#coffeetime"];
 
 export default function Hero() {
+    const { user } = useAuth();
     return (
-        <section className="relative overflow-hidden">
-
-            <div className="max-w-7xl mx-auto px-8 py-24">
-
-                <div className="grid lg:grid-cols-2 gap-20 items-center">
-
-                    {/* LEFT */}
-
-                    <div>
-
-                        <motion.span
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5 }}
-                            className="
-                                inline-flex
-                                items-center
-                                gap-2
-                                px-5
-                                py-2
-                                rounded-full
-                                bg-violet-100
-                                text-violet-700
-                                font-semibold
-                            "
-                        >
-                            AI Powered Content Creation
-                        </motion.span>
-
-                        <motion.h1
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="
-                                mt-8
-                                text-5xl
-                                lg:text-7xl
-                                font-black
-                                leading-tight
-                            "
-                        >
-                            Transform
-
-                            <br />
-
-                            <span className="bg-gradient-to-r from-violet-600 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                                Images
-                            </span>
-
-                            {" "}into
-
-                            <br />
-
-                            <TypeAnimation
-                                sequence={[
-                                    "Captions",
-                                    2000,
-                                    "Blogs",
-                                    2000,
-                                    "SEO Content",
-                                    2000,
-                                    "Descriptions",
-                                    2000,
-                                    "Hashtags",
-                                    2000
-                                ]}
-                                wrapper="span"
-                                speed={45}
-                                repeat={Infinity}
-                            />
-
-                        </motion.h1>
-
-                        <motion.p
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.4 }}
-                            className="
-                                mt-8
-                                text-lg
-                                text-gray-600
-                                leading-8
-                                max-w-xl
-                            "
-                        >
-                            Upload any image and let Pixora AI instantly
-                            generate engaging captions, blogs, social posts,
-                            hashtags, SEO content, summaries and much more
-                            using powerful AI + Computer Vision.
-                        </motion.p>
-
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.6 }}
-                            className="mt-10 flex flex-wrap gap-5"
-                        >
-
-                            <Link
-                                to="/register"
-                                className="
-                                    flex
-                                    items-center
-                                    gap-3
-                                    px-8
-                                    py-4
-                                    rounded-2xl
-                                    text-white
-                                    font-semibold
-                                    bg-gradient-to-r
-                                    from-violet-600
-                                    to-pink-500
-                                    shadow-xl
-                                    hover:scale-105
-                                    transition
-                                "
-                            >
-                                Get Started
-
-                                <FiArrowRight />
-                            </Link>
-
-                            <Link
-                                to="/login"
-                                className="
-                                    px-8
-                                    py-4
-                                    rounded-2xl
-                                    border
-                                    border-violet-200
-                                    bg-white
-                                    hover:border-violet-500
-                                    hover:bg-violet-50
-                                    transition
-                                "
-                            >
-                                Login
-                            </Link>
-
-                        </motion.div>
-
-                        {/* Feature Pills */}
-
-                        <div className="flex flex-wrap gap-4 mt-14">
-
-                            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow">
-
-                                <FiImage className="text-violet-600"/>
-
-                                Captions
-
-                            </div>
-
-                            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow">
-
-                                <FiFileText className="text-violet-600"/>
-
-                                Blogs
-
-                            </div>
-
-                            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow">
-
-                                <FiHash className="text-violet-600"/>
-
-                                SEO
-
-                            </div>
-
-                            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow">
-
-                                <FiZap className="text-violet-600"/>
-
-                                AI Powered
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    {/* RIGHT */}
-
-                    <motion.div
-                        initial={{ opacity: 0, x: 60 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.7 }}
-                        className="relative flex justify-center"
-                    >
-
-                        {/* Glow */}
-
-                        <div className="
-                            absolute
-                            w-[420px]
-                            h-[420px]
-                            rounded-full
-                            bg-violet-400/20
-                            blur-[100px]
-                        "/>
-
-                        {/* Main Glass Card */}
-
-                        <div
-                            className="
-                                relative
-                                bg-white/70
-                                backdrop-blur-xl
-                                rounded-3xl
-                                p-8
-                                border
-                                border-white
-                                shadow-2xl
-                                w-[420px]
-                            "
-                        >
-
-                            <div className="rounded-2xl bg-gradient-to-r from-violet-600 to-pink-500 p-6 text-white">
-
-                                <h3 className="text-2xl font-bold">
-
-                                    AI Content Generator
-
-                                </h3>
-
-                                <p className="mt-2 text-sm">
-
-                                    One image.
-
-                                    Unlimited content.
-
-                                </p>
-
-                            </div>
-
-                            <div className="space-y-5 mt-8">
-
-                                <div className="rounded-xl bg-violet-50 p-4">
-
-                                    📸 Image Uploaded
-
-                                </div>
-
-                                <div className="rounded-xl bg-violet-50 p-4">
-
-                                    🧠 AI Analysing Scene...
-
-                                </div>
-
-                                <div className="rounded-xl bg-violet-50 p-4">
-
-                                    ✍️ Generating Caption...
-
-                                </div>
-
-                                <div className="rounded-xl bg-violet-50 p-4">
-
-                                    🚀 Ready!
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </motion.div>
-
+        <section className="mx-auto grid max-w-6xl items-center gap-12 px-6 pb-20 pt-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:pt-16">
+            <div>
+                <h1 className="text-5xl font-bold leading-[1.02] sm:text-6xl lg:text-7xl">One image in. Every post you need out.</h1>
+                <p className="mt-6 max-w-xl text-lg leading-8 text-muted">
+                    Upload a photo, choose the platform, tone and language, and PIXORATE AI writes the caption, hashtags, blog post, script, SEO copy or translation for it. Ready to paste.
+                </p>
+                <div className="mt-9 flex flex-wrap gap-3">
+                    <Link to={user ? "/dashboard" : "/register"} className="btn btn-primary px-6 py-3.5 text-base">{user ? "Open dashboard" : "Start creating"}</Link>
+                    {!user && <Link to="/login" className="btn btn-outline px-6 py-3.5 text-base">I have an account</Link>}
                 </div>
-
+                <p className="mt-5 text-sm text-muted">Works with JPG, PNG and WEBP. Your original image is never stored.</p>
             </div>
 
+            <figure aria-label="Sample output" className="rounded-lg bg-black p-6 text-[#F6F5F1] sm:p-8">
+                <figcaption className="flex items-center justify-between border-b border-white/15 pb-4 text-sm">
+                    <span className="font-semibold">Caption</span>
+                    <span className="text-[#F6F5F1]/60">Instagram, friendly, English</span>
+                </figcaption>
+                <p className="mt-5 font-display text-2xl font-semibold leading-snug">Golden hour, second cup, zero plans. Some mornings are just for this.</p>
+                <div className="mt-5 flex flex-wrap gap-2">
+                    {SAMPLE_TAGS.map((tag) => <span key={tag} className="rounded-full bg-accent px-3 py-1 text-sm font-medium text-black">{tag}</span>)}
+                </div>
+                <p className="mt-6 border-t border-white/15 pt-4 text-sm text-[#F6F5F1]/60">Sample output. Yours is written from your own image.</p>
+            </figure>
         </section>
     );
 }

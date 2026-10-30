@@ -1,14 +1,27 @@
-import dotenv from "dotenv";
-import app from "./app.js";
-import connectDB from "./config/db.js";
+import mongoose from "mongoose";
+import { assertEnv } from "./config/env.js";
 
-dotenv.config();
+try {
+    assertEnv();
+} catch (error) {
+    console.error(error.message);
+    process.exit(1);
+}
 
-const PORT = process.env.PORT || 5000;
+// Imported after the environment is validated (these modules read process.env on load).
+const { default: app } = await import("./app.js");
+const { default: connectDB } = await import("./config/db.js");
 
-// Connect Database
-connectDB();
+try {
+    await connectDB();
+} catch (error) {
+    console.error(`Could not connect to MongoDB: ${error.message}`);
+    process.exit(1);
+}
 
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+const PORT = Number(process.env.PORT) || 5000;
+const server = app.listen(PORT, () => console.log(`PIXORATE AI API listening on http://localhost:${PORT}`));
+
+for (const signal of ["SIGINT", "SIGTERM"]) {
+    process.on(signal, () => server.close(async () => { await mongoose.disconnect(); process.exit(0); }));
+}
