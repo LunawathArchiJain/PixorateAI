@@ -42,14 +42,13 @@ npm run dev                 # http://localhost:5173
 | --- | --- | --- |
 | `MONGO_URI` | yes | MongoDB connection string |
 | `JWT_SECRET` | yes | 32+ random characters. Keep it private. |
-| `GEMINI_API_KEY` | yes | Never commit it. Rotate it if it is ever shared. |
+| `GEMINI_API_KEY` | yes | Never commit it.|
 | `GEMINI_MODEL` | no | Default `gemini-3.8-flash` |
 | `GEMINI_FALLBACK_MODEL` | no | Default `gemini-3.5-flash-lite`. Used if the main model is unavailable or rate limited. |
 | `CLIENT_URL` | no | Comma-separated allowed origins. Default `http://localhost:5173` |
 | `PORT` | no | Default `5000` |
 | `AUTH_RATE_LIMIT`, `GENERATE_RATE_LIMIT` | no | Requests per window. Defaults 30 per 15 min (auth), 20 per 10 min per user (generate). |
 
-> Gemini 2.5 models were retired for new keys in October 2026. If generation fails with "model not found", set `GEMINI_MODEL` to a current model from the [Gemini models page](https://ai.google.dev/gemini-api/docs/models).
 
 ## Tests
 
@@ -79,7 +78,6 @@ frontend/
   src/context/                 Auth, Theme, Dashboard state
   src/services/                API calls (Axios)
   src/constants/ src/utils/    option lists, image and text helpers
-docs/CHANGELOG.md              what changed and why
 ```
 
 ## API quick reference
